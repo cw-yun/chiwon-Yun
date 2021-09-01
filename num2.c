@@ -10,7 +10,7 @@ int main()
    int b = 1;
    int c = 0;
    int sum = 0;
-   for(int i=0; i<50; i++)
+   for(int i=0; i<50; i++)  // 문제가 바뀌어 10 million이 될경우 어떻게 i 값의 범위를 찾을지?
    {
       c=a+b;
       if(c<4000000 && c>0){

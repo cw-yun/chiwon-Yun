@@ -9,7 +9,7 @@ int main(void)
    
    for(int i=1; i<1000; i++)
    {
-      if(i % 3 == 0)
+      if(i % 3 == 0)    // if 하나로 줄여서 표현해 보세요!  
       sum = sum + i;
       
       if(i % 5 == 0)

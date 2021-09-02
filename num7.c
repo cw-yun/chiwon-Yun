@@ -7,7 +7,7 @@ int main()
 {
     int count =0;
     int num=0;
-    for(int i=2; i<=2147483647; i++)    // range of int type
+    for(int i=2; i<=2147483647; i++)    // range of int type   // while로 수정해서 풀어보세요 ~ 
     {
         for(int j=2; j<=i; j++)
         {

@@ -54,7 +54,7 @@ int main()
     
     int max = 0;
     int mul;
-    for(int i=0; i <=16 ; i++)                                 // up & down direction
+    for(int i=0; i <=16 ; i++)                                 // up & down direction   // 반복되는  for 문을 합칠수 있을것 같네요~ 
     {
         for(int j=0; j <= 16; j++)
         {

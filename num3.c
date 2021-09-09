@@ -10,28 +10,23 @@ int main()
     int count=0;
     long long num=600851475143;
     
-    //clock_t start = clock();
+    clock_t start = clock();
     
-    for(long long i=1; i<600851475143; i++)
+    for(long long i=2; i<600851475143; i++)
     {
-       if(num % i == 0)
+       while(num % i == 0)
        {
-           for(long long j=1; j<=i; j++)
-           {
-               if(i%j==0)
-               {
-                   count++;
-               }
-           }
-           if(count == 2)
-               printf("%llu\n", i);
-           count = 0;
+           num = num / i;
+           printf("%llu\n", i); // print all prime fator
        }
     }
-    //clock_t end = clock();
-    //printf("Time: %lf\n", (double)(end-start)/CLOCKS_PER_SEC);
+    printf("result : %llu\n", num); // check perfectly prime factorization, print 1 means perfectly prime factorization
+    clock_t end = clock(); // 60.51 minute
+    printf("Time: %lf\n", (double)(end-start)/CLOCKS_PER_SEC);
     
     return 0;
 }
     
 // answer : 6857
+// original time : unmeasureable
+// after correction : 60.51 minute

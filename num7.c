@@ -7,8 +7,10 @@ int main()
 {
     int count =0;
     int num=0;
-    for(int i=2; i<=2147483647; i++)    // range of int type
+    int  i = 1;
+    while(1)
     {
+        i++;
         for(int j=2; j<=i; j++)
         {
             if(i%j==0)

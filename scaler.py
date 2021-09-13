@@ -1,75 +1,124 @@
-import numpy as np
 from PIL import Image
-import cv2
-from collections import Counter
+import numpy as np
 
-def nearest(original_pix,original_width,original_height):
-    src = cv2.imread('my_image.JPG', cv2.IMREAD_COLOR)
-    modified_width = 512
-    modified_height = 512
-    
-    width_ratio = modified_width / original_width
-    height_ratio = modified_height / original_height
-    
-    new_width_pixel = np.array(range(modified_width)) + 1
-    new_height_pixel = np.array(range(modified_height)) + 1
-    
-    new_width_pixel = new_width_pixel / width_ratio
-    new_height_pixel = new_height_pixel / height_ratio
-    
-    new_width_pixel = np.ceil(new_width_pixel)
-    new_height_pixel = np.ceil(new_height_pixel)
-    
-    width_repeat = np.array(list(Counter(new_width_pixel).values()))
-    print(original_pix.shape)
-    print(width_repeat)
-    
-    width_matrix = np.dstack([np.repeat(original_pix[:,i], width_repeat) for i in range(original_pix.shape[1])])[0]
-    #print(width_matrix)
-    
-    #print(new_width_pixel)
-    #print(new_height_pixel)
-    
-    convert_im = cv2.resize(src, (modified_width, modified_height), interpolation = cv2.INTER_NEAREST)
-    #print(convert_im.size)
-    
-    cv2.imwrite('nearest_im.JPG', convert_im)
-    cv2.imshow("nearest_im.JPG", convert_im)
-    
+def nearest(im,coordinate):
+    pixel = im.load()
+    if (coordinate[0] < 0):
+        coordinate = (0, coordinate[1])
+    if (coordinate[1] < 0):
+        coordinate = (coordinate[0], 0)
+    if (coordinate[0] > im.size[0] - 2):
+        coordinate = (im.size[0] - 2, coordinate[1])
+    if (coordinate[1] > im.size[1] - 2):
+        coordinate = (coordinate[0], im.size[1] - 2)
 
-def bilinear(original_width,original_height):
-    src = cv2.imread('my_image.JPG', cv2.IMREAD_COLOR)
-    modified_width = 1024
-    modified_height = 1024
-    
-    width_ratio = modified_width / original_width
-    height_ratio = modified_height / original_height
-    
-    convert_im = cv2.resize(src, (modified_width,modified_height), interpolation = cv2.INTER_LINEAR)
-    #print(convert_im.size)
-    
-    
-    cv2.imwrite('linear_im.JPG', convert_im)
-    cv2.imshow("linear_im.JPG", convert_im)
+    #if (coordinate[0] == int(coordinate[0]) and coordinate[1] == int(coordinate[1])):
+    #    return pixel(coordinate)
 
-img_name = ('my_image.JPG')
-im = Image.open(img_name)
-rgb_im = im.convert('RGB')
+    left = int(coordinate[0])
+    right = int(coordinate[0]) + 1
+    top = int(coordinate[1])
+    bottom = int(coordinate[1]) + 1
 
-r, g, b = rgb_im.getpixel((1,1))
-pix = np.array(im)
-width, height = im.size
+    a = coordinate[0] - int(coordinate[0])
+    b = coordinate[1] - int(coordinate[1])
+    #print(a)
+    #print(b)
+    A = pixel[left, top]
+    B = pixel[right, top]
+    C = pixel[left, bottom]
+    D = pixel[right, bottom]
 
-'''
-print(r,g,b)
-print(im.size)
-print(width,height)
-print(pix)
-print(pix.shape)
-'''
+    if a <= 0.5 and b <= 0.5:
+        X = (A[0],A[1],A[2])
+        #print("a")
+    elif a > 0.5 and b <= 0.5:
+        X = (B[1],B[2],B[3])
+        #print("b")
+    elif a <= 0.5 and b > 0.5:
+        X = (C[0],C[1],C[2])
+        #print("c")
+    elif a > 0.5 and b > 0.5:
+        X = (D[0],D[1],D[2])
+        #print("d")
+    return X
 
-nearest(pix,width,height)
-bilinear(width,height)
 
-cv2.waitKey()
-cv2.destroyAllWindows()
+def bilinear(im,coordinate,magnitude):
+    #print(coordinate[0])
+    #print(coordinate[1])
+    pixel = im.load()
+    coordinate[0] = coordinate[0] * magnitude
+    coordinate[1] = coordinate[1] * magnitude
+    #print(coordinate[0])
+    #print(coordinate[1])
+    if(coordinate[0]<0):
+        coordinate = (0,coordinate[1])
+    if(coordinate[1]<0):
+        coordinate = (coordinate[0],0)
+    if(coordinate[0]>im.size[0]-2):
+        coordinate = (im.size[0]-2, coordinate[1])
+    if(coordinate[1]>im.size[1]-2):
+        coordinate = (coordinate[0], im.size[1]-2)
+
+    #if(coordinate[0]==int(coordinate[0]) and coordinate[1]==int(coordinate[1])):
+    #    return pixel(coordinate)
+
+    left = int(coordinate[0])
+    right = int(coordinate[0]) + 1
+    top = int(coordinate[1])
+    bottom = int(coordinate[1]) + 1
+
+    a = coordinate[0] - int(coordinate[0])
+    b = coordinate[1] - int(coordinate[1])
+
+    A = pixel[left,top]
+    B = pixel[right,top]
+    C = pixel[left,bottom]
+    D = pixel[right,bottom]
+    E = ((1-a)*A[0]+a*B[0],(1-a)*A[1]+a*B[1],(1-a)*A[2]+a*B[2])
+    F = ((1-a)*C[0]+a*D[0],(1-a)*C[1]+a*D[1],(1-a)*C[2]+a*D[2])
+    X = (int((1-b)*E[0]+b*F[0]),int((1-b)*E[1]+b*F[1]),int((1-b)*E[2]+b*F[2]))
+    return X
+
+def Magnify_nearest(im, magnitude):
+    modified_size = (int(im.size[0] * magnitude), int(im.size[1] * magnitude))
+    modified_rgb = Image.new("RGB", modified_size)
+    modified_pixel = modified_rgb.load()
+    for i in range(modified_size[0]):
+        for j in range(modified_size[1]):
+            coordinate = (int(i / magnitude), int(j / magnitude))
+            modified_pixel[i,j] = nearest(im, coordinate)
+
+    print(modified_rgb)
+    return modified_rgb
+
+
+def Magnify_bilinear(im, magnitude):
+    modified_size = (int(im.size[0] * magnitude), int(im.size[1] * magnitude))
+    modified_rgb = Image.new("RGB", modified_size)
+    modified_pixel = modified_rgb.load()
+
+    sum_rgb = []
+    for i in range(modified_size[0]):
+        for j in range(modified_size[1]):
+            coordinate = [int(i/magnitude),int(j/magnitude)]
+            modified_pixel[i,j] = bilinear(im,coordinate,magnitude)
+            sum_rgb += modified_pixel[i,j]
+            #print(sum_rgb)
+    sum_rgb = np.array(sum_rgb)
+    #print(sum_rgb)
+    result = np.reshape(sum_rgb,(modified_size[0],modified_size[1],3))
+    #result = np.array(sum_rgb.reshpae(modified_size[0],modified_size[1],3))
+    #print(result)
+    image_rgb = Image.fromarray(sum_rgb)
+    print(image_rgb)
+    image_rgb = image_rgb.convert("RGB")
+    print(image_rgb)
+    return image_rgb
+
+im = Image.open("my_image.JPG")
+im_nearest = Magnify_nearest(im,1.5)
+im_nearest.save("nearest.JPG")
+im_bilinear = Magnify_bilinear(im,1.5)
+im_bilinear.save("bilinear.JPG")

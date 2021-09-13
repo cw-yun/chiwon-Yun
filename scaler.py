@@ -1,7 +1,8 @@
 from PIL import Image
 import numpy as np
 
-def nearest(im,coordinate):
+def nearest(im,coordinate): //함수의 전달인자 사용법이 좀더 직관적이면 좋을것 같습니다. 함수만 보고 입출력에 대해 명확히 알수 있는것이 중요합니다. 
+                            //이 함수에서 전달인자는 입력사이즈 출력사이즈 이미지 데이터 등이 되면 좋을것 같아요. 
     pixel = im.load()
     if (coordinate[0] < 0):
         coordinate = (0, coordinate[1])
@@ -81,7 +82,7 @@ def bilinear(im,coordinate,magnitude):
     X = (int((1-b)*E[0]+b*F[0]),int((1-b)*E[1]+b*F[1]),int((1-b)*E[2]+b*F[2]))
     return X
 
-def Magnify_nearest(im, magnitude):
+def Magnify_nearest(im, magnitude): // 함수 이름이 Magnify(확대)이면 확대만 되는 함수로 오해될것 같아요. 
     modified_size = (int(im.size[0] * magnitude), int(im.size[1] * magnitude))
     modified_rgb = Image.new("RGB", modified_size)
     modified_pixel = modified_rgb.load()

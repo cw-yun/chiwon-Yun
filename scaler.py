@@ -1,8 +1,9 @@
 from PIL import Image
 import numpy as np
+import time
 
-def nearest(input_size, output_size):
-    original_img = Image.open("my_image.JPG")
+def nearest(original_img,input_size, output_size):
+    start = time.time()
     pixel = original_img.load()
 
     width_scale = output_size[0] / input_size[0]
@@ -50,11 +51,12 @@ def nearest(input_size, output_size):
     reshape_rgb = np.reshape(sum_rgb, (output_size[1], output_size[0], 3))
     image_rgb = Image.fromarray(reshape_rgb.astype('uint8'))
     print(image_rgb)
+    print("time: ",time.time() - start)
     return image_rgb
 
 
-def bilinear(input_size,output_size):
-    original_img = Image.open("my_image.JPG")
+def bilinear(original_img,input_size,output_size):
+    start = time.time()
     pixel = original_img.load()
 
     width_scale = output_size[0] / input_size[0]
@@ -95,12 +97,13 @@ def bilinear(input_size,output_size):
     reshape_rgb = np.reshape(sum_rgb, (output_size[1], output_size[0], 3))
     image_rgb = Image.fromarray(reshape_rgb.astype('uint8'))
     print(image_rgb)
+    print("time: ", time.time() - start)
     return image_rgb
 
 original_img = Image.open("my_image.JPG")
 original_size = original_img.size
 output_size = (456,638)                # set output_size
-nearest_img = nearest(original_size,output_size)
+nearest_img = nearest(original_img,original_size,output_size)
 nearest_img.save("nearest.JPG")
-bilinear_img = bilinear(original_size,output_size)
+bilinear_img = bilinear(original_img,original_size,output_size)
 bilinear_img.save("bilinear.JPG")

@@ -1,3 +1,5 @@
+'''
+# 여러개의 파일로 나누어 놓기 전 전체코드
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -55,8 +57,8 @@ def Convolution(input, kernel, bias):
         #print(conv_sum)
 
         # conv layer 이미지 출력
-        #plt.imshow(conv_sum[0][0], cmap = 'Greys')
-        #plt.show()
+        plt.imshow(conv_sum[0][0], cmap = 'Greys')
+        plt.show()
         return conv_sum
 
     # input_node > 1 인 경우(sum을 하는 동작이 필요)
@@ -81,8 +83,8 @@ def Convolution(input, kernel, bias):
         #print(all_filter_sum)
 
         # conv layer 이미지 출력
-        #plt.imshow(all_filter_sum[0][0], cmap = 'Greys')
-        #plt.show()
+        plt.imshow(all_filter_sum[0][0], cmap = 'Greys')
+        plt.show()
         return all_filter_sum
 
 
@@ -112,8 +114,8 @@ def Max_pooling(input,kernel_size):
     #print(pool)
 
     #pool layer 이미지 출력
-    #plt.imshow(pool[0][0], cmap = 'Greys')
-    #plt.show()
+    plt.imshow(pool[0][0], cmap = 'Greys')
+    plt.show()
 
     return pool
 
@@ -162,9 +164,9 @@ test_data = test_data / 255
 reshape_test_data = test_data[1:].reshape(1,1,28,28)
 
 # 기존 이미지 출력
-#reshape_test_data = reshape_test_data.reshape(28, 28)
-#plt.imshow(reshape_test_data, cmap = 'Greys')
-#plt.show()
+reshape_test_data = reshape_test_data.reshape(28, 28)
+plt.imshow(reshape_test_data, cmap = 'Greys')
+plt.show()
 
 reshape_test_data = test_data[1:].reshape(1,1,28,28)
 np.set_printoptions(threshold=np.inf) # 모든 배열의 수 출력
@@ -204,6 +206,71 @@ Max_pooling1 = Max_pooling(Conv1, Pool1_kernel_filter_size)
 Conv2 = Convolution(Max_pooling1, Conv2_kernel, Conv2_kernel_bias)
 Max_pooling2= Max_pooling(Conv2, Pool2_kernel_filter_size)
 fc = Fully_connected(Max_pooling2, fc1_kernel, fc1_kernel_bias, fc2_kernel, fc2_kernel_bias)
+
+f.close() # weight 텍스트 파일 닫기
+
+print("걸리는 시간 :", time.time() - start) # 걸리는 시간 출력
+'''
+
+# 각 함수를 여러개의 파일로 나누어 놓은 코드
+import numpy as np
+import time
+import matplotlib.pyplot as plt
+import cv2
+import ast
+import convolution_file
+import max_pooling_file
+import fc_file
+
+start = time.time() # 시간 측정 시작
+
+test_data = np.loadtxt('test.csv', delimiter=',', dtype=np.float32)
+test_data = test_data / 255
+reshape_test_data = test_data[1:].reshape(1,1,28,28)
+
+# 기존 이미지 출력
+reshape_test_data = reshape_test_data.reshape(28, 28)
+plt.imshow(reshape_test_data, cmap = 'Greys')
+plt.show()
+
+reshape_test_data = test_data[1:].reshape(1,1,28,28)
+np.set_printoptions(threshold=np.inf) # 모든 배열의 수 출력
+
+# weight, bias 값 텍스트 파일로부터 불러오기
+f = open('weight.txt','r')
+lines = f.read() # string 형태로 값 읽기
+lines = lines.split('tensor')
+
+for i in range(1, len(lines)):
+    lines[i] = ast.literal_eval(lines[i])  # ast 라이브러리를 이용하여 string 형태의 문자열을 list 형태로 변환
+
+# Conv1_kernel weight & bias
+Conv1_kernel = lines[1] # shape : (32,1,5,5)
+Conv1_kernel_bias = lines[2] # shape : (32)
+Conv1_kernel = np.array(Conv1_kernel)
+Pool1_kernel_filter_size = (2,2) # 2*2 down sampling
+
+# Conv2_kernel weight & bias
+Conv2_kernel = lines[3] # shape : (64,32,5,5)
+Conv2_kernel_bias = lines[4] # shape : (64)
+Conv2_kernel = np.array(Conv2_kernel)
+Pool2_kernel_filter_size = (2,2) # 2*2 down sampling
+
+# fc1_kernel weight & bias
+fc1_kernel = lines[5] # shape : (512,1024)
+fc1_kernel_bias = lines[6] # shape : (512)
+fc1_kernel = np.array(fc1_kernel)
+
+# fc2_kernel weight & bias
+fc2_kernel = lines[7] # shape : (10,512)
+fc2_kernel_bias = lines[8] # shape : (10)
+fc2_kernel = np.array(fc2_kernel)
+
+Conv1 = convolution_file.Convolution(reshape_test_data, Conv1_kernel, Conv1_kernel_bias)
+Max_pooling1 = max_pooling_file.Max_pooling(Conv1, Pool1_kernel_filter_size)
+Conv2 = convolution_file.Convolution(Max_pooling1, Conv2_kernel, Conv2_kernel_bias)
+Max_pooling2= max_pooling_file.Max_pooling(Conv2, Pool2_kernel_filter_size)
+fc = fc_file.Fully_connected(Max_pooling2, fc1_kernel, fc1_kernel_bias, fc2_kernel, fc2_kernel_bias)
 
 f.close() # weight 텍스트 파일 닫기
 
